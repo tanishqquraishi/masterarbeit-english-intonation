@@ -1,4 +1,15 @@
+"""
+___date__: 08 / 2024
+__author__: Tanishq Quraishi
+
+"""
+
 import pandas as pd
+
+"""
+This module includes functions required across all or most models.
+
+"""
 
 def load_data(file_path):
     """Load data from an Excel file."""
@@ -13,10 +24,10 @@ def rename_columns(data):
     """Renaming specific columns."""
     columns_dict = {
         '1_anno_default_ns:bt': 'boundary_tone',
+        '2_anno_default_ns:word_pa': 'word_pa',
         '1_meta_speaker-bilingual': 'bilingual',
         '1_meta_setting': 'formality',
-        '1_meta_speaker-id': 'speaker_id',
-        '1_anno_default_ns:word_pa': 'word_pa',
         '1_meta_speaker-gender': 'gender',
+        '1_meta_speaker-id': 'speaker_id'
     }
     return data.rename(columns=columns_dict)
