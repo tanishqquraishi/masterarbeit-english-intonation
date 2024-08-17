@@ -1,23 +1,18 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter 
+from utils import load_data, rename_columns, create_binary_column
 
+# Load the data
 file_path = r"C:\Users\Tanishq\Documents\stuttgart\Study\thesis\data\model data\pa_con_17.07.2024.xlsx"
-data = pd.read_excel(file_path)
+data = load_data(file_path)
 
-# Step 1: Create a column that gives a 1 or a 0 to the presence or absence of word_pa
-data['word_pa_binary'] = data['2_anno_default_ns:word_pa'].apply(lambda x: 1 if pd.notnull(x) else 0)
+# Step 1: Create a binary column for the presence or absence of word_pa
+data = create_binary_column(data, 'word_pa_binary', lambda row: 1 if pd.notnull(row['2_anno_default_ns:word_pa']) else 0)
 
 # Step 2: Rename the columns for clarity
-data = data.rename(columns={
-    '1_meta_speaker-bilingual': 'bilingual',
-    '1_meta_setting': 'formality',
-    '1_meta_speaker-gender': 'gender',
-    '1_meta_speaker-id': 'speaker_id'
-})
+data = rename_columns(data)
 
 # Contrast-code the independent variables
 data['bilingual_contrast'] = data['bilingual'].apply(lambda x: 1 if x == 'yes' else -1)

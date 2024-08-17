@@ -1,30 +1,29 @@
-
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter 
+from utils import load_data, rename_columns, create_binary_column
 
 # Load the data
 file_path = r"C:\Users\Tanishq\Documents\stuttgart\Study\thesis\data\model data\pitch_accents_17.07.2024.xlsx"  
-data = pd.read_excel(file_path)
+data = load_data(file_path)
 
-# Step 1: Create a column that gives a 1 for monotonal and 0 for bitonal pitch accents
+# Step 1: Create a binary column for pitch accents
 monotonal_pitch_accents = ["H*", "L*"]
 bitonal_pitch_accents = ["L+H*", "L*+H", "H+L*", "H*+!H", "H*+L", "H+!H*", "H*+L"]
 
-data['pa_type_binary'] = data['2_anno_default_ns:word_pa'].apply(lambda x: 1 if x in monotonal_pitch_accents else (0 if x in bitonal_pitch_accents else None))
+data = create_binary_column(
+    data, 
+    'pa_type_binary', 
+    lambda row: 1 if row['2_anno_default_ns:word_pa'] in monotonal_pitch_accents else 
+                (0 if row['2_anno_default_ns:word_pa'] in bitonal_pitch_accents else None)
+)
 
 # Drop rows with None values in the pa_type_binary column
 data = data.dropna(subset=['pa_type_binary'])
 
 # Step 2: Rename the columns for clarity
-data = data.rename(columns={
-    '1_meta_speaker-bilingual': 'bilingual',
-    '1_meta_setting': 'formality',
-    '1_meta_speaker-gender': 'gender',
-    '1_meta_speaker-id': 'speaker_id'
-})
+data = rename_columns(data)
 
 # Contrast-code the independent variables
 data['bilingual_contrast'] = data['bilingual'].apply(lambda x: 1 if x == 'yes' else -1)
