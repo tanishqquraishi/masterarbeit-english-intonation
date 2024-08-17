@@ -1,21 +1,19 @@
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import data 
+from matplotlib.ticker import FuncFormatter 
+from utils import load_data, rename_columns, create_binary_column
 
-file_path = r"C:\Users\Tanishq\Documents\stuttgart\Study\thesis\data\model data\boundary_tones_17.07.2024.xlsx"
-data = pd.read_excel(file_path)
+"""
+Investigate the frequency of high and low boundary tones per speaker group
+with factors such as formality and gender
 
-# Rename the columns to more straightforward names
-data = data.rename(columns={
-    '1_anno_default_ns:bt': 'boundary_tone',
-    '1_meta_speaker-bilingual': 'bilingual',
-    '1_meta_setting': 'formality',
-    '1_meta_speaker-gender': 'gender',
-    '1_meta_speaker-id': 'speaker_id'
-})
+"""
+
+# Load the data
+file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\boundary_tones_17.07.2024.xlsx"
+data = load_data(file_path)
+data = rename_columns(data)
 
 # Define lists for high and low boundary tones
 high_boundary_tones = [
@@ -25,10 +23,15 @@ low_boundary_tones = [
     'L-L%', 'H-L%', 'L-', '!H-L%', '^H-L%'
 ]
 
-# Create a binary column for high and low boundary tones
-data['boundary_tone_binary'] = data['boundary_tone'].apply(
-    lambda x: 1 if x in high_boundary_tones else (0 if x in low_boundary_tones else None)
-)
+# Create a binary column for high and low boundary tones 
+def boundary_tone_condition(row):
+    if row['boundary_tone'] in high_boundary_tones:
+        return 1
+    elif row['boundary_tone'] in low_boundary_tones:
+        return 0
+    return None
+
+data = create_binary_column(data, 'boundary_tone_binary', boundary_tone_condition)
 
 # Drop rows with None values in the boundary_tone_binary column
 data = data.dropna(subset=['boundary_tone_binary'])
@@ -51,6 +54,9 @@ mixedlm_model = smf.mixedlm(formula, data, groups=data["speaker_id"]).fit()
 
 # Print the summary of the MixedLM model
 print(mixedlm_model.summary())
+
+# Store the fitted values in the DataFrame
+data['fittedvalues'] = mixedlm_model.fittedvalues
 
 # Visualization of fixed effects coefficients with error bars
 model_data = {
@@ -82,7 +88,7 @@ plt.show()
 
 # Plot the likelihood of high boundary tone by formality and gender
 def plot_likelihood_by_group(data, group_col, title, ylabel):
-    group_likelihood = data.groupby(group_col)[mixedlm_model.fittedvalues.name].mean()
+    group_likelihood = data.groupby(group_col)['fittedvalues'].mean()
 
     # Create bar plot
     plt.figure(figsize=(8, 6))

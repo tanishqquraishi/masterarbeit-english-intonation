@@ -4,22 +4,25 @@ import statsmodels.formula.api as smf
 from matplotlib.ticker import FuncFormatter 
 from utils import load_data, rename_columns, create_binary_column
 
+"""
+Investigate the likelihood of a pitch accent on a content word 
+by a speaker group with factors such as formality and gender.
+
+"""
 # Load the data
 file_path = r"C:\Users\Tanishq\Documents\stuttgart\Study\thesis\data\model data\pa_con_17.07.2024.xlsx"
 data = load_data(file_path)
-
-# Step 1: Create a binary column for the presence or absence of word_pa
-data = create_binary_column(data, 'word_pa_binary', lambda row: 1 if pd.notnull(row['2_anno_default_ns:word_pa']) else 0)
-
-# Step 2: Rename the columns for clarity
 data = rename_columns(data)
+
+# Create a binary column for the presence or absence of word_pa
+data = create_binary_column(data, 'word_pa_binary', lambda row: 1 if pd.notnull(row['word_pa']) else 0)
 
 # Contrast-code the independent variables
 data['bilingual_contrast'] = data['bilingual'].apply(lambda x: 1 if x == 'yes' else -1)
 data['formality_contrast'] = data['formality'].apply(lambda x: 1 if x == 'formal' else -1)
 data['gender_contrast'] = data['gender'].apply(lambda x: 1 if x == 'female' else -1)
 
-# Step 3: Define the mixed effects model formula
+# Define the mixed effects model formula
 formula = 'word_pa_binary ~ bilingual_contrast * formality_contrast + gender_contrast'
 
 # Fit the Mixed Linear Model with random intercept for speaker_id
@@ -28,7 +31,8 @@ mixedlm_model = smf.mixedlm(formula, data, groups=data["speaker_id"]).fit()
 # Print the summary of the MixedLM model
 print(mixedlm_model.summary())
 
-# Step 4: Plot the model results
+################## Visualizations ##################
+
 # Visualization of fixed effects coefficients with error bars
 model_data = {
     'Variable': mixedlm_model.params.index,
@@ -38,11 +42,18 @@ model_data = {
 
 model_df = pd.DataFrame(model_data)
 
-# Visualize the coefficients
+# Visualize the coefficients with enhanced readability
 fig, ax = plt.subplots(figsize=(10, 6))
 
+# Use colors only for the markers, error bars in a single color
+colors = ['green' if coef > 0 else 'red' for coef in model_df['Coef.']]
+
 # Plotting the coefficients with error bars
-ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=model_df['Std.Err.'], fmt='o', color='blue', ecolor='black', capsize=5)
+ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=model_df['Std.Err.'], fmt='o', color='black', ecolor='black', capsize=5)
+
+# Plot the colored markers separately
+for i, (coef, color) in enumerate(zip(model_df['Coef.'], colors)):
+    ax.plot(model_df['Variable'][i], coef, 'o', color=color)
 
 # Add horizontal line at y=0 for reference
 ax.axhline(y=0, color='grey', linestyle='--')
@@ -50,14 +61,17 @@ ax.axhline(y=0, color='grey', linestyle='--')
 # Add labels and title
 ax.set_xlabel('Variable')
 ax.set_ylabel('Coefficient')
-ax.set_title('MixedLM Coefficients with 95% Conf Interval for word_pa Binary')
+ax.set_title('MixedLM Coefficients with 95% Confidence Interval')
 
-# Rotate x-axis labels for better readability
+# Add annotations to each point
+for i, txt in enumerate(model_df['Coef.']):
+    ax.annotate(f'{txt:.2f}', (model_df['Variable'][i], model_df['Coef.'][i]), textcoords="offset points", xytext=(0,10), ha='center')
+
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
 
-# Step 5: Plot the likelihood of a word_pa based on monolingual and bilingual speaker groups
+# Plot the likelihood of a word_pa based on monolingual and bilingual speaker groups
 # Calculate the mean likelihood of word_pa by speaker group
 data['predicted_pa'] = mixedlm_model.fittedvalues
 group_likelihood = data.groupby('bilingual')['predicted_pa'].mean()
@@ -65,9 +79,9 @@ group_likelihood = data.groupby('bilingual')['predicted_pa'].mean()
 # Create bar plot for speaker group likelihood
 plt.figure(figsize=(8, 6))
 group_likelihood.plot(kind='bar', color=['skyblue', 'salmon'])
-plt.xlabel('Speaker Group')
-plt.ylabel('Likelihood of word_pa (%)')
-plt.title('Likelihood of Presence of word_pa by Speaker Group')
+plt.xlabel('Bilingual')
+plt.ylabel('Likelihood of Pitch Accent on Content Word (%)')
+plt.title('Likelihood of Presence of Pitch Accent on Content Word by Speaker Group')
 plt.xticks(rotation=0)
 
 # Apply the percentage formatter to the y-axis
