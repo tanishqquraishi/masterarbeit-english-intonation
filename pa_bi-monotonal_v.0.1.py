@@ -1,3 +1,9 @@
+"""
+___date__: 08 / 2024
+__author__: Tanishq Quraishi
+
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
@@ -27,13 +33,13 @@ data = create_binary_column(
 # Drop rows with None values in the pa_type_binary column
 data = data.dropna(subset=['pa_type_binary'])
 
-# Contrast-code the independent variables
+# Contrast-code the independent variables    
 data['bilingual_contrast'] = data['bilingual'].apply(lambda x: 1 if x == 'yes' else -1)
 data['formality_contrast'] = data['formality'].apply(lambda x: 1 if x == 'formal' else -1)
 data['gender_contrast'] = data['gender'].apply(lambda x: 1 if x == 'female' else -1)
 
 # Define the mixed effects model formula with interaction terms
-formula = 'pa_type_binary ~ bilingual_contrast * formality_contrast * gender_contrast'
+formula = 'pa_type_binary ~ bilingual_contrast * formality_contrast + gender_contrast'
 
 # Fit the Mixed Linear Model with random intercept for speaker_id
 mixedlm_model = smf.mixedlm(formula, data, groups=data["speaker_id"]).fit()

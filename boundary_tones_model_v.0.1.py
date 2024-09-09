@@ -1,3 +1,9 @@
+"""
+___date__: 08 / 2024
+__author__: Tanishq Quraishi
+
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
@@ -5,10 +11,11 @@ from matplotlib.ticker import FuncFormatter
 from utils import load_data, rename_columns, create_binary_column
 
 """
-Investigate the frequency of high and low boundary tones per speaker group
-with factors such as formality and gender
+Investigate the likelihood of a high boundary tone by a speaker group
+with factors such as formality and gender.
 
 """
+
 
 # Load the data
 file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\boundary_tones_17.07.2024.xlsx"
@@ -47,7 +54,7 @@ data['interaction_bilingual_gender'] = data['bilingual_contrast'] * data['gender
 data['interaction_bilingual_formality'] = data['bilingual_contrast'] * data['formality_contrast']
 
 # Define the mixed effects model formula
-formula = 'boundary_tone_binary ~ bilingual_contrast * formality_contrast + gender_contrast'
+formula = 'boundary_tone_binary ~ bilingual_contrast * formality_contrast * gender_contrast'
 
 # Fit the Mixed Linear Model with random intercept for speaker_id
 mixedlm_model = smf.mixedlm(formula, data, groups=data["speaker_id"]).fit()
@@ -66,6 +73,8 @@ model_data = {
 }
 
 model_df = pd.DataFrame(model_data)
+
+################## Visualizations ##################
 
 # Visualize the coefficients
 fig, ax = plt.subplots(figsize=(10, 6))
