@@ -1,5 +1,5 @@
 """
-___date__: 08 / 2024
+___date__: 09 / 2024
 __author__: Tanishq Quraishi
 
 """
@@ -54,7 +54,7 @@ data['interaction_bilingual_gender'] = data['bilingual_contrast'] * data['gender
 data['interaction_bilingual_formality'] = data['bilingual_contrast'] * data['formality_contrast']
 
 # Define the mixed effects model formula
-formula = 'boundary_tone_binary ~ bilingual_contrast * formality_contrast * gender_contrast'
+formula = 'boundary_tone_binary ~ bilingual_contrast * formality_contrast + gender_contrast'
 
 # Fit the Mixed Linear Model with random intercept for speaker_id
 mixedlm_model = smf.mixedlm(formula, data, groups=data["speaker_id"]).fit()
@@ -117,3 +117,39 @@ plot_likelihood_by_group(data, 'formality', 'Likelihood of High Boundary Tone by
 
 # Plotting by gender
 plot_likelihood_by_group(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone (%)')
+
+# Post-hoc pairwise comparison
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
+
+# Step 1: Create a new column combining gender and bilingualism with clearer names
+def combine_gender_bilingual(row):
+    if row['gender'] == 'male' and row['bilingual'] == 'yes':
+        return 'male_bilingual'
+    elif row['gender'] == 'male' and row['bilingual'] == 'no':
+        return 'male_monolingual'
+    elif row['gender'] == 'female' and row['bilingual'] == 'yes':
+        return 'female_bilingual'
+    elif row['gender'] == 'female' and row['bilingual'] == 'no':
+        return 'female_monolingual'
+
+data['gender_bilingual'] = data.apply(combine_gender_bilingual, axis=1)
+
+# Step 2: Perform Tukey's HSD test for the combined effect of gender and bilingualism
+tukey_combined = pairwise_tukeyhsd(
+    endog=data['fittedvalues'],  # Dependent variable (fitted values)
+    groups=data['gender_bilingual'],  # Independent variable (combined gender and bilingualism groups)
+    alpha=0.05  # Significance level
+)
+
+# Step 3: Print the summary of the Tukey HSD test
+print("Tukey HSD Test for Gender and Bilingualism Combined:")
+print(tukey_combined.summary())
+
+# Step 4: Plot the Tukey HSD results for the combined groups
+tukey_combined.plot_simultaneous()
+
+# Customize the plot for better readability
+plt.xlabel('Mean Difference in Fitted Values')
+plt.ylabel('Group (Gender and Bilingualism)')
+plt.title('Tukey HSD Test: Pairwise Differences in Likelihood of High Boundary Tone')
+plt.show()

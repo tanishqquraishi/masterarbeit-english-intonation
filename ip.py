@@ -1,8 +1,20 @@
+"""
+___date__: 08 / 2024
+__author__: Tanishq Quraishi
+
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.formula.api as smf
 from matplotlib.ticker import FuncFormatter 
 from utils import load_data, rename_columns, create_binary_column
+
+"""
+Investigate the length of IP by each speaker group with factors
+such as formality and gender.
+
+"""
 
 # Load the data
 file_path = r"C:\Users\Tanishq\Documents\stuttgart\Study\thesis\data\model data\ip_data_17.07.2024.xlsx"
@@ -10,6 +22,8 @@ data = load_data(file_path)
 
 # Step 1: Preprocessing
 # Add a column that marks 1 for every word_bt present and 0 for NaN values
+
+############### REDO 
 data = create_binary_column(data, 'bt_flag', lambda row: 1 if pd.notnull(row['2_anno_default_ns:word_bt']) else 0)
 
 # Create an identifier for each IP such that each IP ends at the row where bt_flag is 1
