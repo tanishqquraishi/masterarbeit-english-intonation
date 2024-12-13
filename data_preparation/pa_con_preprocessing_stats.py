@@ -106,3 +106,9 @@ speaker_group_pa_con['Monolingual Count'] = speaker_group_pa_con['Monolingual Co
 merged_speaker_group_pa_con= apply_pa_speaker_merge_mappings(speaker_group_pa_con, pa_merge_mappings)
 merged_speaker_group_pa_con = merged_speaker_group_pa_con.sort_values(by=['Bilingual Count', 'Monolingual Count'], ascending=False).reset_index(drop=True)
 merged_speaker_group_pa_con
+
+#  average number of pitch accents in PA based on the 6 categories 
+
+average_pa_per_pos = pa_con_cleaned.groupby('3_anno_default_ns:pos')['2_anno_default_ns:word_pa'].count() / pa_con_cleaned['3_anno_default_ns:pos'].value_counts()
+
+print(average_pa_per_pos)
