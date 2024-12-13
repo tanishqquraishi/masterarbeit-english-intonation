@@ -25,7 +25,8 @@ def rename_columns(data):
     columns_dict = {
         '1_anno_default_ns:bt': 'boundary_tone',
         '2_anno_default_ns:word_pa': 'word_pa',
-        '1_meta_speaker-bilingual': 'bilingual',
+        '2_anno_default_ns:word_bt': 'word_bt',
+        '1_meta_speaker-bilingual' : 'bilingual',
         '1_meta_setting': 'formality',
         '1_meta_speaker-gender': 'gender',
         '1_meta_speaker-id': 'speaker_id'
