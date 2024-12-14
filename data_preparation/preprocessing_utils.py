@@ -22,6 +22,20 @@ pa_merge_mappings = {"!H*" : "H*",
                   "^H*" : "H*",
 }
 
+def drop_diverse_gender(data, gender_column='1_meta_speaker-gender'):
+    """
+    Removes rows where the specified gender column contains the value 'diverse'.
+
+    Parameters:
+    data (pd.DataFrame): The input DataFrame to clean.
+    gender_column (str): The column name where gender is specified.
+
+    Returns:
+    pd.DataFrame: A cleaned DataFrame with 'diverse' rows removed.
+    """
+    return data[data[gender_column] != 'diverse']
+
+
 def calculate_percentages(df, word_col, bilingual_col):
     # Calculate total number of words
     total_number_of_x = df[word_col].count()
