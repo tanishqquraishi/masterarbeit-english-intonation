@@ -35,6 +35,11 @@ formula = 'boundary_tone_binary ~ bilingual_contrast + formality_contrast + gend
 glmm_model = Lmer(formula, data=data, family='binomial')
 glmm_model.fit()
 
+# Print the fixed effects coeffs
+print("Fixed Effects Coefficients:")
+print(glmm_model.coefs)
+
+
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
