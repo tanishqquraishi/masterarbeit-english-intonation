@@ -1,5 +1,5 @@
 import pandas as pd
-from preprocessing_utils import bt_merge_mappings , calculate_percentages, calculate_gender_percentages, apply_bt_merge_mappings, apply_bt_gender_merge_mappings, apply_bt_speaker_merge_mappings
+from preprocessing_utils import bt_merge_mappings , calculate_percentages, calculate_gender_percentages, apply_bt_merge_mappings, apply_bt_gender_merge_mappings, apply_bt_speaker_merge_mappings, drop_diverse_gender
 
 file_path = ""
 boundary_tones = pd.read_excel(file_path, sheet_name=1)  
