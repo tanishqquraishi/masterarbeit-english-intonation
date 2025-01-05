@@ -1,10 +1,9 @@
 import pandas as pd
 from pymer4.models import Lmer
-import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
 from utils import load_data, rename_columns, create_binary_column
+from visualizations_binomial_models import plot_coefficients, plot_likelihood_by_group
 
-# Load the data
+# Load and preprocess the data
 file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\pitch_accents_17.07.2024.xlsx"
 data = load_data(file_path)
 data = rename_columns(data)
@@ -29,83 +28,62 @@ data['bilingual_contrast'] = data['bilingual'].apply(lambda x: 1 if x == 'yes' e
 data['formality_contrast'] = data['formality'].apply(lambda x: 1 if x == 'formal' else -1)
 data['gender_contrast'] = data['gender'].apply(lambda x: 1 if x == 'female' else -1)
 
-# Manually create interaction terms
+# Create interaction terms
 data['interaction_formality_gender'] = data['formality_contrast'] * data['gender_contrast']
 data['interaction_bilingual_gender'] = data['bilingual_contrast'] * data['gender_contrast']
 data['interaction_bilingual_formality'] = data['bilingual_contrast'] * data['formality_contrast']
 
-# Define the GLMM formula using manual interaction terms
+# Define the GLMM formula
 formula = 'pa_type_binary ~ bilingual_contrast + formality_contrast + gender_contrast + interaction_bilingual_formality + interaction_bilingual_gender + interaction_formality_gender + (1|speaker_id)'
 
 # Fit the GLMM model using a binomial family
 glmm_model = Lmer(formula, data=data, family='binomial')
 glmm_model.fit()
 
-# Print the summary of the GLMM model
+# Print the model summary
 print(glmm_model.summary())
 
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
+# Extract only z and p scores 
+
+# Extract Z-stat and P-val from the model coefficients
+z_and_p_values = glmm_model.coefs[['Z-stat', 'P-val']]
+
+# Rename the index for better readability
+z_and_p_values.index.name = 'Effect'
+
+# Customize p-value formatting
+z_and_p_values['P-val'] = z_and_p_values['P-val'].apply(lambda x: "<0.001" if x < 0.001 else round(x, 3))
+print("Z-scores and P-values for Fixed Effects: ")
+print(z_and_p_values)
+
 ################## Visualizations ##################
 
-# Visualization of fixed effects coefficients with error bars
-model_data = {
-    'Variable': glmm_model.coefs['Estimate'].index,
-    'Coef.': glmm_model.coefs['Estimate'].values,
-    'Std.Err.': glmm_model.coefs['SE'].values,
-}
+# Visualize coefficients
+model_data = pd.DataFrame({
+    'Variable': glmm_model.coefs.index,
+    'Coef.': glmm_model.coefs['Estimate'],
+    'Std.Err.': glmm_model.coefs['SE']
+})
+plot_coefficients(model_data, title='GLMM Coefficients for Monotonal vs Bitonal Pitch Accents')
 
-model_df = pd.DataFrame(model_data)
+# Visualizations of likelihood by group
+plot_likelihood_by_group(
+    data, 'bilingual', 
+    title='Likelihood of Bitonal Pitch Accent by Speaker Group', 
+    ylabel='Likelihood of Bitonal Pitch Accent (%)'
+)
 
-# Visualize the coefficients
-fig, ax = plt.subplots(figsize=(12, 8))
+plot_likelihood_by_group(
+    data, 'formality', 
+    title='Likelihood of Bitonal Pitch Accent by Formality', 
+    ylabel='Likelihood of Bitonal Pitch Accent (%)'
+)
 
-# Plotting the coefficients with error bars
-ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=model_df['Std.Err.'], fmt='o', color='blue', ecolor='black', capsize=5)
-
-# Add horizontal line at y=0 for reference
-ax.axhline(y=0, color='grey', linestyle='--')
-
-# Add labels and title
-ax.set_xlabel('Variable')
-ax.set_ylabel('Coefficient')
-ax.set_title('GLMM Coefficients with 95% Conf Interval for Bitonal vs Monotonal PA')
-
-# Rotate x-axis labels for better readability
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
-
-# Plot the likelihood of a bitonal PA based on speaker group, formality, and gender
-data['predicted_pa'] = data['fittedvalues']
-
-def plot_likelihood_by_group(data, group_col, title, ylabel, hue=None):
-    group_likelihood = data.groupby(group_col)['predicted_pa'].mean()
-
-    # Create bar plot
-    plt.figure(figsize=(10, 6))
-    if hue:
-        group_likelihood = data.groupby([group_col, hue])['predicted_pa'].mean().unstack()
-        group_likelihood.plot(kind='bar', color=['skyblue', 'salmon'])
-    else:
-        group_likelihood.plot(kind='bar', color=['skyblue', 'salmon'])
-        
-    plt.xlabel(group_col.capitalize())
-    plt.ylabel(ylabel)
-    plt.title(title)
-    plt.xticks(rotation=0)  # Keep x-axis labels horizontal
-
-    # Apply the percentage formatter to the y-axis
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0%}'))
-    plt.tight_layout()
-    plt.show()
-
-# Plotting by speaker group (bilingualism)
-plot_likelihood_by_group(data, 'bilingual', 'Likelihood of Bitonal Pitch Accent by Speaker Group', 'Likelihood of Bitonal Pitch Accent (%)')
-
-# Plotting by formality with speaker group as hue
-plot_likelihood_by_group(data, 'formality', 'Likelihood of Bitonal Pitch Accent by Formality and Speaker Group', 'Likelihood of Bitonal Pitch Accent (%)', hue='bilingual')
-
-# Plotting by gender with speaker group as hue
-plot_likelihood_by_group(data, 'gender', 'Likelihood of Bitonal Pitch Accent by Gender and Speaker Group', 'Likelihood of Bitonal Pitch Accent (%)', hue='bilingual')
+plot_likelihood_by_group(
+    data, 'gender', 
+    title='Likelihood of Bitonal Pitch Accent by Gender', 
+    ylabel='Likelihood of Bitonal Pitch Accent (%)'
+)
