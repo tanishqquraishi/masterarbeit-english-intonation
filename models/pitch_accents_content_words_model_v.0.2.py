@@ -1,10 +1,10 @@
 import pandas as pd
 from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
-from visualizations_binomial_models import plot_coefficients, plot_likelihood_by_group, plot_likelihood_by_interaction
+from visualizations_binomial_models import plot_coefficients, plot_likelihood_by_group
 
 # Load data
-file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\pa_con_17.07.2024.xlsx"
+file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\pa_con_for_model.xlsx"
 data = load_data(file_path)
 data = rename_columns(data)
 
@@ -22,8 +22,25 @@ formula = 'word_pa_binary ~ bilingual_contrast * formality_contrast + (1|speaker
 glmm_model = Lmer(formula, data=data, family='binomial')
 glmm_model.fit()
 
+# Print the fixed effects coeffs
+print("Fixed Effects Coefficients:")
+print(glmm_model.coefs)
+
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
+
+# Extract only z and p scores in a table
+
+# Extract Z-stat and P-val from the model coefficients
+z_and_p_values = glmm_model.coefs[['Z-stat', 'P-val']]
+
+# Rename the index for better readability
+z_and_p_values.index.name = 'Effect'
+
+# Customize p-value formatting
+z_and_p_values['P-val'] = z_and_p_values['P-val'].apply(lambda x: "<0.001" if x < 0.001 else round(x, 3))
+print("Z-scores and P-values for Fixed Effects: ")
+print(z_and_p_values)
 
 # Prepare the model data for visualizations
 model_data = {
@@ -36,5 +53,5 @@ model_df = pd.DataFrame(model_data)
 
 # Visualizations
 plot_coefficients(model_df, title='GLMM Coefficients for Content Word PA')
-plot_likelihood_by_group(data, 'bilingual', 'Likelihood of Pitch Accent by Speaker Group', 'Likelihood of Pitch Accent (%)')
-plot_likelihood_by_group(data, 'formality', 'Likelihood of Pitch Accent by Formality', 'Likelihood of Pitch Accent (%)')
+plot_likelihood_by_group(data, 'bilingual', 'Likelihood of Pitch Accent by Speaker Group', 'Likelihood of Pitch Accent')
+plot_likelihood_by_group(data, 'formality', 'Likelihood of Pitch Accent by Formality', 'Likelihood of Pitch Accent')
