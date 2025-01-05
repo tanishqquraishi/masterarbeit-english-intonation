@@ -4,7 +4,7 @@ from utils import load_data, rename_columns, create_binary_column
 from visualizations_binomial_models import plot_coefficients, plot_likelihood_by_group, plot_likelihood_by_interaction
 
 # Load data
-file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\boundary_tones_17.07.2024.xlsx"
+file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\bt_for_model.xlsx"
 data = load_data(file_path)
 data = rename_columns(data)
 
@@ -43,6 +43,20 @@ print(glmm_model.coefs)
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
+# Extract only z and p scores 
+
+# Extract Z-stat and P-val from the model coefficients
+z_and_p_values = glmm_model.coefs[['Z-stat', 'P-val']]
+
+# Rename the index for better readability
+z_and_p_values.index.name = 'Effect'
+
+# Customize p-value formatting
+z_and_p_values['P-val'] = z_and_p_values['P-val'].apply(lambda x: "<0.001" if x < 0.001 else round(x, 3))
+print("Z-scores and P-values for Fixed Effects: ")
+print(z_and_p_values)
+
+
 # Prepare the model data for visualizations
 model_data = {
     'Variable': glmm_model.coefs['Estimate'].index,
@@ -54,6 +68,6 @@ model_df = pd.DataFrame(model_data)
 
 # Visualizations
 plot_coefficients(model_df, title='GLMM Coefficients for Boundary Tones')
-plot_likelihood_by_group(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone (%)')
-plot_likelihood_by_group(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone (%)')
-plot_likelihood_by_interaction(data, ['bilingual', 'gender'], 'Interaction of Bilingualism and Gender on High Boundary Tone', 'Likelihood (%)')
+plot_likelihood_by_group(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone')
+plot_likelihood_by_group(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone')
+plot_likelihood_by_interaction(data, ['bilingual', 'gender'], 'Interaction of Bilingualism and Gender on High Boundary Tone', 'Likelihood')
