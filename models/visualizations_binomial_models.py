@@ -29,7 +29,7 @@ def plot_likelihood_by_group(data, group_col, title, ylabel):
     group_likelihood = data.groupby(group_col)['fittedvalues'].mean()
 
     plt.figure(figsize=(8, 6))
-    group_likelihood.plot(kind='bar', color=['skyblue', 'salmon'])
+    group_likelihood.plot(kind='bar', color=['skyblue', 'pink'])
     plt.xlabel(group_col.capitalize())
     plt.ylabel(ylabel)
     plt.title(title)
