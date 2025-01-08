@@ -52,6 +52,6 @@ model_data = {
 model_df = pd.DataFrame(model_data)
 
 # Visualizations
-plot_coefficients(model_df, title='GLMM Coefficients for Content Word PA')
-plot_likelihood_by_group(data, 'bilingual', 'Likelihood of Pitch Accent by Speaker Group', 'Likelihood of Pitch Accent')
-plot_likelihood_by_group(data, 'formality', 'Likelihood of Pitch Accent by Formality', 'Likelihood of Pitch Accent')
+plot_coefficients(model_df, title='GLMM Coefficients for Pitch Accents on Content Words')
+plot_likelihood_by_group(data, 'bilingual', 'Likelihood of Pitch Accent on Content Words by Speaker Group', 'Likelihood of Pitch Accent on a Content Word')
+plot_likelihood_by_group(data, 'formality', 'Likelihood of Pitch Accent on Content Words by Formality', 'Likelihood of Pitch Accent on a Content Word')
