@@ -73,17 +73,11 @@ plot_coefficients(model_data, title='GLMM Coefficients for Monotonal vs Bitonal 
 plot_likelihood_by_group(
     data, 'bilingual', 
     title='Likelihood of Bitonal Pitch Accent by Speaker Group', 
-    ylabel='Likelihood of Bitonal Pitch Accent (%)'
+    ylabel='Likelihood of Bitonal Pitch Accent'
 )
 
 plot_likelihood_by_group(
     data, 'formality', 
     title='Likelihood of Bitonal Pitch Accent by Formality', 
-    ylabel='Likelihood of Bitonal Pitch Accent (%)'
-)
-
-plot_likelihood_by_group(
-    data, 'gender', 
-    title='Likelihood of Bitonal Pitch Accent by Gender', 
-    ylabel='Likelihood of Bitonal Pitch Accent (%)'
+    ylabel='Likelihood of Bitonal Pitch Accent'
 )
