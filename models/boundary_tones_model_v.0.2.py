@@ -1,10 +1,11 @@
 import pandas as pd
+from config import file_paths
 from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
-from visualizations_binomial_models import plot_coefficients, plot_likelihood_by_group, plot_likelihood_by_interaction
+from visualizations import plot_coefficients, plot_likelihood_by_group, plot_likelihood_by_interaction
 
 # Load data
-file_path = r"C:\\Users\\Tanishq\\Documents\\stuttgart\\Study\\thesis\\data\\model data\\bt_for_model.xlsx"
+file_path = file_paths["bt_model"]
 data = load_data(file_path)
 data = rename_columns(data)
 
