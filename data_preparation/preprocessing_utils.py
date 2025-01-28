@@ -37,6 +37,17 @@ def drop_diverse_gender(data, gender_column='1_meta_speaker-gender'):
 
 
 def calculate_percentages(df, word_col, bilingual_col):
+    """
+    Calculates percentages of occurrences for bilingual and monolingual speakers.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing the data.
+    word_col (str): The column representing the words.
+    bilingual_col (str): The column representing bilingual status ('yes' or 'no').
+
+    Returns:
+    None: Prints the total counts and percentages for bilingual and monolingual speakers.
+    """
     # Calculate total number of words
     total_number_of_x = df[word_col].count()
 
@@ -58,11 +69,22 @@ def calculate_percentages(df, word_col, bilingual_col):
     print(f"Percentage of x for monolingual speakers: {percent_of_x_monolingual:.2f}%")
 
 
-# Example usage:
+
 # results = calculate_percentages(pa_cleaned, '2_anno_default_ns:word_pa', '1_meta_speaker-bilingual')
 
 
 def calculate_gender_percentages(df, word_col, gender_col):
+    """
+    Calculates percentages of occurrences for male and female speakers.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing the data.
+    word_col (str): The column representing the words.
+    gender_col (str): The column representing gender status ('male' or 'female').
+
+    Returns:
+    None: Prints the total counts and percentages for male and female speakers.
+    """
     # Calculate total number of words
     total_number_of_x = df[word_col].count()
 
@@ -83,12 +105,22 @@ def calculate_gender_percentages(df, word_col, gender_col):
     print(f"Percentage of x for male speakers: {percent_of_x_male:.2f}%")
     print(f"Percentage of x for female speakers: {percent_of_x_female:.2f}%")
 
-# Example usage:
+
 # results = calculate_gender_percentages(pa_cleaned, '2_anno_default_ns:word_pa', '1_meta_speaker-gender')
 
 ####################### BT and IP ####################################################
 # Function to apply merge mappings and update counts
 def apply_bt_merge_mappings(bt_counts, mappings):
+    """
+    Applies merge mappings to boundary tone counts.
+
+    Parameters:
+    bt_counts (pd.Series): The counts of boundary tones.
+    mappings (dict): A dictionary mapping old labels to new labels.
+
+    Returns:
+    pd.Series: A series with updated boundary tone counts after applying the mappings.
+    """
     bt_counts_dict = bt_counts.to_dict()
     bt_final_counts = bt_counts_dict.copy()
 
@@ -106,6 +138,16 @@ def apply_bt_merge_mappings(bt_counts, mappings):
 # Function to apply merge mappings and update counts based on speaker group 
 
 def apply_bt_speaker_merge_mappings(df, mappings):
+    """
+    Applies merge mappings to boundary tone counts grouped by speaker type (bilingual/monolingual).
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing boundary tone counts.
+    mappings (dict): A dictionary mapping old labels to new labels.
+
+    Returns:
+    pd.DataFrame: A DataFrame with updated boundary tone counts after applying the mappings.
+    """
     # Iterate over the mappings
     for old_label, new_label in mappings.items():
         if old_label in df['Boundary Tone'].values:
@@ -134,6 +176,16 @@ def apply_bt_speaker_merge_mappings(df, mappings):
 
 
 def apply_bt_gender_merge_mappings(df, mappings):
+    """
+    Applies merge mappings to boundary tone counts grouped by gender.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing boundary tone counts.
+    mappings (dict): A dictionary mapping old labels to new labels.
+
+    Returns:
+    pd.DataFrame: A DataFrame with updated boundary tone counts after applying the mappings.
+    """
     for old_label, new_label in mappings.items():
         if old_label in df['Boundary Tone'].values:
             # Get the current counts of the old label
@@ -164,6 +216,16 @@ def apply_bt_gender_merge_mappings(df, mappings):
 # Function to apply merge mappings and update counts
 
 def apply_pa_merge_mappings(pa_counts, mappings):
+    """
+    Applies merge mappings to pitch accent counts.
+
+    Parameters:
+    pa_counts (pd.Series): The counts of pitch accents.
+    mappings (dict): A dictionary mapping old labels to new labels.
+
+    Returns:
+    pd.Series: A series with updated pitch accent counts after applying the mappings.
+    """
     pa_counts_dict = pa_counts.to_dict()
     final_counts = pa_counts_dict.copy()
 
@@ -173,38 +235,26 @@ def apply_pa_merge_mappings(pa_counts, mappings):
                 final_counts[new_label] += pa_counts_dict[old_label]
             else:
                 final_counts[new_label] = pa_counts_dict[old_label]
-            # Keep the old label but set its count to 0 to retain it in the DataFrame
+           
             final_counts[old_label] = 0
 
     return pd.Series(final_counts)
 
 # Function to apply merge mappings and update counts based on gender 
 
-def apply_pa_gender_merge_mappings(df, mappings):
-    
-    for old_label, new_label in mappings.items():
-        if old_label in df['Pitch Accent'].values:
-            # Get the current counts of the old label
-            old_male_count = df.loc[df['Pitch Accent'] == old_label, 'Male Count'].values[0]
-            old_female_count = df.loc[df['Pitch Accent'] == old_label, 'Female Count'].values[0]
-
-            # Check if the new label exists in the DataFrame
-            if new_label in df['Pitch Accent'].values:
-                # Add the counts to the existing new label
-                df.loc[df['Pitch Accent'] == new_label, 'Male Count'] += old_male_count
-                df.loc[df['Pitch Accent'] == new_label, 'Female Count'] += old_female_count
-            else:
-                # If the new label does not exist, create a new row
-                new_row = pd.DataFrame([[new_label, old_male_count, old_female_count]],
-                                       columns=['Pitch Accent', 'Male Count', 'Female Count'])
-                df = pd.concat([df, new_row], ignore_index=True)
-
-            # Set the counts of the old label to 0
-            df.loc[df['Pitch Accent'] == old_label, ['Male Count', 'Female Count']] = 0
-
-    return df
 
 def apply_pa_speaker_merge_mappings(df, mappings):
+    """
+    Applies merge mappings to pitch accent counts grouped by speaker group.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing pitch accent counts.
+    mappings (dict): A dictionary mapping old label to new labels.
+
+    Returns:
+    pd.DataFrame: A  DataFrame with updated pitch accent counts after applying the mappings.
+
+    """
     
     for old_label, new_label in mappings.items():
         if old_label in df['Pitch Accent'].values:
@@ -225,5 +275,38 @@ def apply_pa_speaker_merge_mappings(df, mappings):
 
             # Set the counts of the old label to 0
             df.loc[df['Pitch Accent'] == old_label, ['Bilingual Count', 'Monolingual Count']] = 0
+
+    return df
+
+def apply_pa_gender_merge_mappings(df, mappings):
+    """
+    Applies merge mappings to pitch accent counts grouped by gender (male/female).
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing pitch accent counts.
+    mappings (dict): A dictionary mapping old labels to new labels.
+
+    Returns:
+    pd.DataFrame: A DataFrame with updated pitch accent counts after applying the mappings.
+    """
+    for old_label, new_label in mappings.items():
+        if old_label in df['Pitch Accent'].values:
+            # Get the current counts of the old label
+            old_male_count = df.loc[df['Pitch Accent'] == old_label, 'Male Count'].values[0]
+            old_female_count = df.loc[df['Pitch Accent'] == old_label, 'Female Count'].values[0]
+
+            # Check if the new label exists in the DataFrame
+            if new_label in df['Pitch Accent'].values:
+                # Add the counts to the existing new label
+                df.loc[df['Pitch Accent'] == new_label, 'Male Count'] += old_male_count
+                df.loc[df['Pitch Accent'] == new_label, 'Female Count'] += old_female_count
+            else:
+                # If the new label does not exist, create a new row
+                new_row = pd.DataFrame([[new_label, old_male_count, old_female_count]],
+                                       columns=['Pitch Accent', 'Male Count', 'Female Count'])
+                df = pd.concat([df, new_row], ignore_index=True)
+
+            # Set the counts of the old label to 0
+            df.loc[df['Pitch Accent'] == old_label, ['Male Count', 'Female Count']] = 0
 
     return df

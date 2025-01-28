@@ -1,13 +1,6 @@
-"""
-PA Con Preprocessing, Absolute and Relative Counts
-Calculate:
-
-"""
-
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
-from preprocessing_utils import pa_merge_mappings, calculate_percentages, calculate_gender_percentages, apply_pa_merge_mappings, apply_pa_speaker_merge_mappings
+from preprocessing_utils import pa_merge_mappings, calculate_percentages, apply_pa_merge_mappings, apply_pa_speaker_merge_mappings
 
 file_path = ""
 pa_con = pd.read_excel(file_path, sheet_name=3)
@@ -19,8 +12,9 @@ pa_content_words = pa_con[pa_con["3_anno_default_ns:pos"].isin(["VERB", "NOUN", 
 # discard labels set
 pitch_accents_to_discard = ['L-L%', 'L**H', 'L-', 'H-L%', 'H-', '!H', 'L+', '*?', '*', 'L-H%', 'L*+^H*', '!H-L%', 'H-H%', 'H+L', 'L*+H*', 'L++H', 'L-H*', 'L*H*', 'L*+H%', '!H+', 'H+!H', 'L+H+']
 
-# add NaN in place of the above label
+# add NaN in place of the above label, retain words/ norm
 pa_content_words['2_anno_default_ns:word_pa'] = pa_content_words['2_anno_default_ns:word_pa'].replace(pitch_accents_to_discard, np.nan)
+
 # correction labels set
 pa_replacements = [
     ("H*,L-", "H*"),
@@ -59,7 +53,7 @@ pa_con_cleaned = pd.read_excel(cleaned_file_path, 3)
 
 ####################### COUNTS ####################3
 calculate_percentages(pa_con_cleaned, "2_anno_default_ns:word_pa", "1_meta_speaker-bilingual")
-calculate_gender_percentages(pa_con_cleaned, '2_anno_default_ns:word_pa', '1_meta_speaker-gender')
+#calculate_gender_percentages(pa_con_cleaned, '2_anno_default_ns:word_pa', '1_meta_speaker-gender')
 
 
 ############ MAKE A NEW COLUMN FOR WHERE THERE IS NULL VAL IN WORD_PA#################
@@ -80,7 +74,7 @@ print(f"Total number of Pitch Accents: {number_of_pa}")
 print(f"Average Number of Pitch Accents per word: {average_pa}")
 print(f"Percentage of words without Pitch Accents: {no_pa_percent:.2f}%")
 
-##########
+########## PA on Con Speaker Group Counts ################
 
 merged_pa_con_counts = apply_pa_merge_mappings(pa_con_cleaned['2_anno_default_ns:word_pa'].value_counts(), pa_merge_mappings)
 merged_pa_con_counts = merged_pa_con_counts.sort_values(ascending=False).reset_index(drop=False)

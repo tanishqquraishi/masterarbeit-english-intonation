@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-from preprocessing_utils import calculate_gender_percentages, calculate_percentages, pa_merge_mappings, apply_pa_gender_merge_mappings, apply_pa_merge_mappings, drop_diverse_gender
+from preprocessing_utils import calculate_gender_percentages, calculate_percentages, pa_merge_mappings, apply_pa_gender_merge_mappings, apply_pa_speaker_merge_mappings, apply_pa_merge_mappings, drop_diverse_gender
 
 """# Files temporarily uploaded to run time"""
 
 file_path = "/content/pitch accents redone.xlsx"
-pitch_accents = pd.read_excel(file_path,) #Add sheet number along with file path
+pitch_accents = pd.read_excel(file_path) #Add sheet number along with file path if needed
 
 pitch_accents_cleaned = pitch_accents[~pitch_accents['1_meta_speaker-id'].isin(["'NULL'"])]
 pitch_accents_cleaned.head(5)
@@ -81,7 +81,7 @@ print(f"Number of female speakers: {number_of_female_speakers}")
 print(f"Number of diverse speakers: {number_of_diverse_speakers}")
 pa_cleaned['1_meta_speaker-gender'].unique()
 
-"""# After dropping diverse speakers"""
+"""# Counts after dropping diverse speakers"""
 
 pa_cleaned = drop_diverse_gender(pa_cleaned)
 
@@ -163,4 +163,3 @@ merged_gender_group_pa = merged_gender_group_pa.sort_values(by=['Male Count', 'F
 merged_gender_group_pa
 
 calculate_gender_percentages(pa_cleaned,  "2_anno_default_ns:word_pa", "1_meta_speaker-gender")
-
