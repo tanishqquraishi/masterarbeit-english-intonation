@@ -1,12 +1,12 @@
 import pandas as pd
 from config import file_paths
-from utils import load_data, rename_columns
+from utils import load_data, rename_columns, create_binary_column
 from visualizations import plot_coefficients
 from pymer4.models import Lmer
 
 """
 Investigate the length of IP by each speaker group (bilingual vs. monolingual speakers) with factors 
-such as formality and gender.
+such as formality.
 """
 
 # Load and preprocess the data
@@ -14,14 +14,11 @@ file_path = file_paths["ip_model"]
 data = load_data(file_path)
 data = rename_columns(data)
 
-# Define a helper function to create a binary column for IP boundaries
-def create_ip_boundary(data, column_name):
-    """Create a binary column indicating the presence of IP boundaries."""
-    data['ip_boundary'] = data[column_name].notna()
-    return data
-
-# Identify IPs by creating a binary flag for boundary tones
-data = create_ip_boundary(data, column_name='word_bt')
+data = create_binary_column(
+    data=data,
+    column_name='ip_boundary',
+    condition=lambda row: pd.notna(row['word_bt'])
+)
 
 # Assign unique IP IDs based on boundary tones
 ip_id = 1
@@ -36,7 +33,7 @@ data['ip_id'] = ip_ids
 ip_lengths = data.groupby('ip_id').size().reset_index(name='ip_length')
 
 # Merge IP lengths back into the original data
-data = data.merge(ip_lengths, on='ip_id', how='left')
+#data = data.merge(ip_lengths, on='ip_id', how='left')
 
 # Contrast-code the independent variables
 data['bilingual_contrast'] = data['bilingual'].map(lambda x: 1 if x == 'yes' else -1)
@@ -47,7 +44,7 @@ formula = 'ip_length ~ bilingual_contrast * formality_contrast + (1|speaker_id)'
 
 # Fit the GLMM using pymer4's Lmer
 model = Lmer(formula, data=data)    
-model.fit(REML=False)
+model.fit(REML=False) #using MLE instead of REML
 
 # Print the model summary
 print("GLMM Summary:")
@@ -55,7 +52,7 @@ print(model.summary())
 
 data['fittedvalues'] = model.predict(data, skip_data_checks=True, verify_predictions=False)
 
-# Extract Z-stat and P-val from the model coefficients
+######## Extract z and p scores for reporting #############
 #z_and_p_values = model.coefs[['Z-stat', 'P-val']]
 
 # Rename the index for better readability
@@ -66,12 +63,15 @@ data['fittedvalues'] = model.predict(data, skip_data_checks=True, verify_predict
 #print("Z-scores and P-values for Fixed Effects:")
 #print(z_and_p_values)
 
+################## Visualizations ##################
+
 # Prepare the model coefficients DataFrame
 model_data = {
     'Variable': model.coefs['Estimate'].index,
     'Coef.': model.coefs['Estimate'].values,
     'Std.Err.': model.coefs['SE'].values,
 }
+
 # Visualize the model coefficients
 model_df = pd.DataFrame(model_data)
 plot_coefficients(model_df, title="GLMM Coefficients for IP Length")
@@ -84,4 +84,3 @@ plot_coefficients(model_df, title="GLMM Coefficients for IP Length")
 #    title='Average IP Length by Speaker Group', 
 #    ylabel='Average IP Length'
 #)
-

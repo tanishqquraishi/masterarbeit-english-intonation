@@ -4,6 +4,11 @@ from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
 from visualizations import plot_coefficients, plot_likelihood_by_group, plot_likelihood_by_interaction
 
+"""
+Investigate the likelihood of a high BT by each speaker group (bilingual vs. monolingual speakers) 
+with factors such as formality and gender.
+"""
+
 # Load data
 file_path = file_paths["bt_model"]
 data = load_data(file_path)
@@ -44,7 +49,7 @@ print(glmm_model.coefs)
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
-# Extract only z and p scores 
+######## Extract z and p scores for reporting #############
 
 # Extract Z-stat and P-val from the model coefficients
 z_and_p_values = glmm_model.coefs[['Z-stat', 'P-val']]
@@ -57,7 +62,7 @@ z_and_p_values['P-val'] = z_and_p_values['P-val'].apply(lambda x: "<0.001" if x 
 print("Z-scores and P-values for Fixed Effects: ")
 print(z_and_p_values)
 
-
+################## Visualizations ##################
 # Prepare the model data for visualizations
 model_data = {
     'Variable': glmm_model.coefs['Estimate'].index,
@@ -67,7 +72,6 @@ model_data = {
 
 model_df = pd.DataFrame(model_data)
 
-# Visualizations
 plot_coefficients(model_df, title='GLMM Coefficients for Boundary Tones')
 plot_likelihood_by_group(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone')
 plot_likelihood_by_group(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone')

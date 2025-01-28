@@ -4,6 +4,11 @@ from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
 from visualizations import plot_coefficients, plot_likelihood_by_group
 
+"""
+Investigate the likelihood of a monotonal or bitonal PA by each speaker group (bilingual vs. monolingual speakers) 
+with factors such as formality and gender.
+"""
+
 # Load and preprocess the data
 file_path = file_paths["pa_model"]
 data = load_data(file_path)
@@ -47,7 +52,7 @@ print(glmm_model.summary())
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
-# Extract only z and p scores 
+######## Extract z and p scores for reporting #############
 
 # Extract Z-stat and P-val from the model coefficients
 z_and_p_values = glmm_model.coefs[['Z-stat', 'P-val']]

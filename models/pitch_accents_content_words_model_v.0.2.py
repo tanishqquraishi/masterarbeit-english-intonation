@@ -4,6 +4,11 @@ from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
 from visualizations import plot_coefficients, plot_likelihood_by_group
 
+"""
+Investigate the likelihood of a PA on a content word by each speaker group (bilingual vs. monolingual speakers) 
+with factors such as formality.
+"""
+
 # Load data
 file_path = file_paths["pa_con_model"]
 data = load_data(file_path)
@@ -30,7 +35,7 @@ print(glmm_model.coefs)
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
-# Extract only z and p scores in a table
+######## Extract z and p scores for reporting #############
 
 # Extract Z-stat and P-val from the model coefficients
 z_and_p_values = glmm_model.coefs[['Z-stat', 'P-val']]
@@ -43,6 +48,8 @@ z_and_p_values['P-val'] = z_and_p_values['P-val'].apply(lambda x: "<0.001" if x 
 print("Z-scores and P-values for Fixed Effects: ")
 print(z_and_p_values)
 
+################## Visualizations ##################
+
 # Prepare the model data for visualizations
 model_data = {
     'Variable': glmm_model.coefs['Estimate'].index,
@@ -52,7 +59,6 @@ model_data = {
 
 model_df = pd.DataFrame(model_data)
 
-# Visualizations
 plot_coefficients(model_df, title='GLMM Coefficients for Pitch Accents on Content Words')
 plot_likelihood_by_group(data, 'bilingual', 'Likelihood of Pitch Accent on Content Words by Speaker Group', 'Likelihood of Pitch Accent on a Content Word')
 plot_likelihood_by_group(data, 'formality', 'Likelihood of Pitch Accent on Content Words by Formality', 'Likelihood of Pitch Accent on a Content Word')
