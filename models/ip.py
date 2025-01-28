@@ -1,8 +1,8 @@
 import pandas as pd
 from config import file_paths
+from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
 from visualizations import plot_coefficients
-from pymer4.models import Lmer
 
 """
 Investigate the length of IP by each speaker group (bilingual vs. monolingual speakers) with factors 
