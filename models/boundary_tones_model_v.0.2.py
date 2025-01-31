@@ -2,7 +2,7 @@ import pandas as pd
 from config import file_paths
 from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
-from visualizations import plot_coefficients, plot_likelihood_by_group, plot_likelihood_by_interaction
+from visualizations import plot_mean_with_ci, plot_coefficients_1
 
 """
 Investigate the likelihood of a high BT by each speaker group (bilingual vs. monolingual speakers) 
@@ -67,12 +67,21 @@ print(z_and_p_values)
 model_data = {
     'Variable': glmm_model.coefs['Estimate'].index,
     'Coef.': glmm_model.coefs['Estimate'].values,
+    '2.5_ci': glmm_model.coefs['2.5_ci'].values,  # Lower confidence bound
+    '97.5_ci': glmm_model.coefs['97.5_ci'].values,  # Upper confidence bound
     'Std.Err.': glmm_model.coefs['SE'].values,
 }
 
 model_df = pd.DataFrame(model_data)
 
-plot_coefficients(model_df, title='GLMM Coefficients for Boundary Tones')
-plot_likelihood_by_group(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone')
-plot_likelihood_by_group(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone')
-plot_likelihood_by_interaction(data, ['bilingual', 'gender'], 'Interaction of Bilingualism and Gender on High Boundary Tone', 'Likelihood')
+plot_mean_with_ci(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone')
+plot_mean_with_ci(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone')
+
+plot_coefficients_1(model_df, title='GLMM Coefficients for Boundary Tones')
+
+
+#old
+#plot_coefficients(model_df, title='GLMM Coefficients for Boundary Tones')
+#plot_likelihood_by_group(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone')
+#plot_likelihood_by_group(data, 'gender', 'Likelihood of High Boundary Tone by Gender', 'Likelihood of High Boundary Tone')
+#plot_likelihood_by_interaction(data, ['bilingual', 'gender'], 'Interaction of Bilingualism and Gender on High Boundary Tone', 'Likelihood')

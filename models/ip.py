@@ -2,7 +2,7 @@ import pandas as pd
 from config import file_paths
 from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
-from visualizations import plot_coefficients
+from visualizations import plot_coefficients_1, plot_mean_with_ci
 
 """
 Investigate the length of IP by each speaker group (bilingual vs. monolingual speakers) with factors 
@@ -65,22 +65,9 @@ data['fittedvalues'] = model.predict(data, skip_data_checks=True, verify_predict
 
 ################## Visualizations ##################
 
-# Prepare the model coefficients DataFrame
-model_data = {
-    'Variable': model.coefs['Estimate'].index,
-    'Coef.': model.coefs['Estimate'].values,
-    'Std.Err.': model.coefs['SE'].values,
-}
-
 # Visualize the model coefficients
-model_df = pd.DataFrame(model_data)
-plot_coefficients(model_df, title="GLMM Coefficients for IP Length")
+plot_coefficients_1(model.coefs, title="GLMM Coefficients for IP Length")
 
-
-# Visualize the average IP lengths by speaker group
-#plot_likelihood_by_group(
-#    data=data, 
-#    group_col='bilingual', 
-#    title='Average IP Length by Speaker Group', 
-#    ylabel='Average IP Length'
-#)
+# Visualize the mean IP length by group
+plot_mean_with_ci(data, 'bilingual', 'IP Length by Speaker Group', 'Mean IP Length')
+plot_mean_with_ci(data, 'formality', 'IP Length by Formality', 'Mean IP Length')

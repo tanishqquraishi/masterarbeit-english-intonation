@@ -2,7 +2,7 @@ import pandas as pd
 from config import file_paths
 from pymer4.models import Lmer
 from utils import load_data, rename_columns, create_binary_column
-from visualizations import plot_coefficients, plot_likelihood_by_group
+from visualizations import plot_coefficients_1, plot_mean_with_ci
 
 """
 Investigate the likelihood of a monotonal or bitonal PA by each speaker group (bilingual vs. monolingual speakers) 
@@ -65,24 +65,25 @@ z_and_p_values['P-val'] = z_and_p_values['P-val'].apply(lambda x: "<0.001" if x 
 print("Z-scores and P-values for Fixed Effects: ")
 print(z_and_p_values)
 
-################## Visualizations ##################
 
-# Visualize coefficients
+################ Visualizations ####################3
 model_data = pd.DataFrame({
     'Variable': glmm_model.coefs.index,
     'Coef.': glmm_model.coefs['Estimate'],
+    '2.5_ci': glmm_model.coefs['2.5_ci'],
+    '97.5_ci': glmm_model.coefs['97.5_ci'],
     'Std.Err.': glmm_model.coefs['SE']
 })
-plot_coefficients(model_data, title='GLMM Coefficients for Monotonal vs Bitonal Pitch Accents')
+plot_coefficients_1(model_data, title='GLMM Coefficients for Monotonal vs Bitonal Pitch Accents')
 
 # Visualizations of likelihood by group
-plot_likelihood_by_group(
+plot_mean_with_ci(
     data, 'bilingual', 
     title='Likelihood of Bitonal Pitch Accent by Speaker Group', 
     ylabel='Likelihood of Bitonal Pitch Accent'
 )
 
-plot_likelihood_by_group(
+plot_mean_with_ci(
     data, 'formality', 
     title='Likelihood of Bitonal Pitch Accent by Formality', 
     ylabel='Likelihood of Bitonal Pitch Accent'
