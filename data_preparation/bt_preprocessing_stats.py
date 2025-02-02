@@ -102,3 +102,40 @@ gender_group_bt
 merged_gender_group_bt = apply_bt_gender_merge_mappings(gender_group_bt, bt_merge_mappings)
 merged_gender_group_bt = merged_gender_group_bt.sort_values(by=['Male Count', 'Female Count'], ascending=False).reset_index(drop=True)
 merged_gender_group_bt
+
+# BT and Formality Count ###############
+# Define high and low boundary tones
+high_boundary_tones = ['H-H%', 'L-H%', 'H-', 'H-^H%', 'L-^H%', '!H-H%', '^H-H%']
+low_boundary_tones = ['L-L%', 'H-L%', 'L-', '!H-L%', '^H-L%']
+
+
+def count_boundary_tones(group, bt_list):
+    return group[group['1_anno_default_ns:bt'].isin(bt_list)]['1_anno_default_ns:bt'].count()
+
+data = []
+
+for speaker_type, bilingual_value in [("Majority English", "yes"), ("Monolingual English", "no")]:
+    for formality_level in ["formal", "informal"]:
+        subset = boundary_tones_cleaned[
+            (boundary_tones_cleaned['1_meta_speaker-bilingual'] == bilingual_value) &
+            (boundary_tones_cleaned['1_meta_setting'] == formality_level)
+        ]
+
+        high_bt_count = count_boundary_tones(subset, high_boundary_tones)
+        low_bt_count = count_boundary_tones(subset, low_boundary_tones)
+
+        total_bt_count = high_bt_count + low_bt_count
+        high_bt_percentage = (high_bt_count / total_bt_count * 100) if total_bt_count > 0 else 0
+        low_bt_percentage = (low_bt_count / total_bt_count * 100) if total_bt_count > 0 else 0
+
+        data.append({
+            "Speaker Group": speaker_type,
+            "Formality": formality_level,
+            "High BT Count": high_bt_count,
+            "Low BT Count": low_bt_count,
+            "High BT Percentage": f"{high_bt_percentage:.1f}%",
+            "Low BT Percentage": f"{low_bt_percentage:.1f}%"
+        })
+
+bt_counts_df = pd.DataFrame(data)
+bt_counts_df
