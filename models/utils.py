@@ -50,3 +50,19 @@ def rename_columns(data):
         '1_meta_speaker-id': 'speaker_id'
     }
     return data.rename(columns=columns_dict)
+
+def convert_mixed_columns_to_string(data):
+    """
+    Converts columns containing mixed types (string + int) to strings.
+
+    Parameters:
+    data (pd.DataFrame): The input DataFrame.
+
+    Returns:
+    pd.DataFrame: The DataFrame with all mixed-type columns converted to strings.
+    """
+    for col in data.columns:
+        if data[col].dtype == "object" and data[col].apply(lambda x: isinstance(x, (str, int))).all():
+            data[col] = data[col].astype(str)  # Convert mixed-type columns to string
+        elif data[col].dtype in ["int64", "float64"]:
+            return data
