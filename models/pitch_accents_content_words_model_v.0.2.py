@@ -39,6 +39,9 @@ glmm_model.fit()
 # print("Fixed Effects Coefficients:")
 # print(glmm_model.coefs)
 
+# Print the model summary
+print(glmm_model.summary())
+
 # Display Model Fit Statistics
 display_model_fit(glmm_model)
 
