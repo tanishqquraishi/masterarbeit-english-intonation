@@ -9,7 +9,7 @@ from utils import load_data, rename_columns, create_binary_column, convert_mixed
 from visualizations import plot_coefficients_1, plot_mean_with_ci, display_model_fit, display_fixed_effects
 
 """
-Investigate the likelihood of a monotonal or bitonal PA by each speaker group (bilingual vs. monolingual speakers) 
+Investigate the likelihood of a monotonal PA by each speaker group (bilingual vs. monolingual speakers) 
 with factors such as formality.
 """
 
@@ -38,19 +38,22 @@ data = data.dropna(subset=['pa_type_binary'])
 # Contrast-code the independent variables
 data['bilingual_contrast'] = data['bilingual'].apply(lambda x: 1 if x == 'yes' else -1)
 data['formality_contrast'] = data['formality'].apply(lambda x: 1 if x == 'formal' else -1)
+data['gender_contrast'] = data['gender'].apply(lambda x: 1 if x == 'female' else -1)
 
-
+# Interaction terms
+data['interaction_formality_gender'] = data['formality_contrast'] * data['gender_contrast']
+data['interaction_bilingual_gender'] = data['bilingual_contrast'] * data['gender_contrast']
 data['interaction_bilingual_formality'] = data['bilingual_contrast'] * data['formality_contrast']
 
 # Define the GLMM formula
-formula = 'pa_type_binary ~ bilingual_contrast + formality_contrast + interaction_bilingual_formality + (1|speaker_id)'
+formula = 'pa_type_binary ~ bilingual_contrast + formality_contrast + gender_contrast + interaction_bilingual_formality + interaction_bilingual_gender + interaction_formality_gender + (1|speaker_id)'
 
 # Fit the GLMM model using a binomial family
 glmm_model = Lmer(formula, data=data, family='binomial')
 glmm_model.fit()
 
 # Print the model summary
-# print(glmm_model.summary())
+print(glmm_model.summary())
 
 # Display Model Fit Statistics
 display_model_fit(glmm_model)
@@ -88,12 +91,12 @@ plot_coefficients_1(model_data, title='GLMM Coefficients for Monotonal vs Bitona
 # Visualizations of likelihood by group
 plot_mean_with_ci(
     data, 'bilingual', 
-    title='Likelihood of Bitonal Pitch Accent by Speaker Group', 
-    ylabel='Likelihood of Bitonal Pitch Accent'
+    title='Likelihood of Monotonal Pitch Accent by Speaker Group', 
+    ylabel='Likelihood of Monotonal Pitch Accent'
 )
 
 plot_mean_with_ci(
     data, 'formality', 
-    title='Likelihood of Bitonal Pitch Accent by Formality', 
-    ylabel='Likelihood of Bitonal Pitch Accent'
+    title='Likelihood of Monotonal Pitch Accent by Formality', 
+    ylabel='Likelihood of Monotonal Pitch Accent by Formality'
 )
