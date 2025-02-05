@@ -163,3 +163,6 @@ merged_gender_group_pa = merged_gender_group_pa.sort_values(by=['Male Count', 'F
 merged_gender_group_pa
 
 calculate_gender_percentages(pa_cleaned,  "2_anno_default_ns:word_pa", "1_meta_speaker-gender")
+
+
+pa_cleaned.to_excel('pa_for_model.xlsx', index=False)

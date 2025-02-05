@@ -1,5 +1,7 @@
 import pandas as pd
-from preprocessing_utils import bt_merge_mappings , calculate_percentages, calculate_gender_percentages, apply_bt_merge_mappings, apply_bt_gender_merge_mappings, apply_bt_speaker_merge_mappings, drop_diverse_gender
+from preprocessing_utils import bt_merge_mappings , apply_bt_merge_mappings, apply_bt_gender_merge_mappings, drop_diverse_gender
+
+"""# Files temporarily uploaded to run time"""
 
 file_path = ""
 boundary_tones = pd.read_excel(file_path, sheet_name=1)  
@@ -80,7 +82,7 @@ number_of_monolinguals = bt_cleaned[bt_cleaned['1_meta_speaker-bilingual'] == 'n
 print(f"Number of monolingual speakers: {number_of_monolinguals}")
 
 ################ BT and Gender Counts ################
-# Calculate pitch accent counts for male and female groups
+
 male_bt_count = bt_cleaned[bt_cleaned['1_meta_speaker-gender'] == 'male']['1_anno_default_ns:bt'].value_counts()
 female_bt_count = bt_cleaned[bt_cleaned['1_meta_speaker-gender'] == 'female']['1_anno_default_ns:bt'].value_counts()
 
@@ -103,7 +105,7 @@ merged_gender_group_bt = apply_bt_gender_merge_mappings(gender_group_bt, bt_merg
 merged_gender_group_bt = merged_gender_group_bt.sort_values(by=['Male Count', 'Female Count'], ascending=False).reset_index(drop=True)
 merged_gender_group_bt
 
-# BT and Formality Count ###############
+############### BT and Formality Count ###############
 # Define high and low boundary tones
 high_boundary_tones = ['H-H%', 'L-H%', 'H-', 'H-^H%', 'L-^H%', '!H-H%', '^H-H%']
 low_boundary_tones = ['L-L%', 'H-L%', 'L-', '!H-L%', '^H-L%']
@@ -139,3 +141,5 @@ for speaker_type, bilingual_value in [("Majority English", "yes"), ("Monolingual
 
 bt_counts_df = pd.DataFrame(data)
 bt_counts_df
+
+bt_cleaned.to_excel('bt_for_model.xlsx', index=False)

@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from preprocessing_utils import pa_merge_mappings, calculate_percentages, apply_pa_merge_mappings, apply_pa_speaker_merge_mappings
 
+"""# Files temporarily uploaded to run time"""
+
 file_path = ""
 pa_con = pd.read_excel(file_path, sheet_name=3)
 
@@ -106,3 +108,6 @@ merged_speaker_group_pa_con
 average_pa_per_pos = pa_con_cleaned.groupby('3_anno_default_ns:pos')['2_anno_default_ns:word_pa'].count() / pa_con_cleaned['3_anno_default_ns:pos'].value_counts()
 
 print(average_pa_per_pos)
+
+
+pa_con_cleaned.to_excel('pa_con_model.xlsx', index=False)
