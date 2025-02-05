@@ -58,6 +58,9 @@ display_model_fit(glmm_model)
 # Display Fixed Effects Coefficients
 display_fixed_effects(glmm_model)
 
+# Print the model summary
+print(glmm_model.summary())
+
 # Store the fitted values in the DataFrame
 data['fittedvalues'] = glmm_model.predict(data, skip_data_checks=True, verify_predictions=False)
 
@@ -88,7 +91,7 @@ model_data = {
 
 model_df = pd.DataFrame(model_data)
 
-plot_coefficients_1(model_df, title='GLMM Coefficients for Boundary Tones')
+plot_coefficients_1(model_df, title='GLMM Coefficients for High vs Low Boundary Tones')
 
 # Visualizations of likelihood by group
 plot_mean_with_ci(data, 'formality', 'Likelihood of High Boundary Tone by Formality', 'Likelihood of High Boundary Tone')
