@@ -5,36 +5,6 @@ from statsmodels.stats.multicomp import pairwise_tukeyhsd
 import pandas as pd
 from tabulate import tabulate 
 
-def plot_coefficients(model_df, title="GLMM Coefficients"):
-    """
-    Visualize the fixed effects coefficients with error bars.
-    Parameters:
-    model_df (pd.DataFrame): DataFrame containing model coefficients and standard errors.
-        - Columns should include 'Variable' (names of variables), 'Coef.' (coefficients), and 'Std.Err.' (standard errors).
-    title (str): Title for the plot.
-
-    Returns:
-    None: Displays a matplotlib plot.
-    """
-    #fig check 
-    ax = plt.subplots(figsize=(10, 6))
-
-    # Plot coefficients with error bars
-    ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=model_df['Std.Err.'], fmt='o', color='blue', ecolor='black', capsize=5)
-
-    # Add horizontal line at y=0 for reference
-    ax.axhline(y=0, color='grey', linestyle='--')
-
-    # Add labels and title
-    ax.set_xlabel('Variable')
-    ax.set_ylabel('Coefficient')
-    ax.set_title(title)
-
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-import matplotlib.pyplot as plt
 
 def plot_coefficients_1(model_df, title="GLMM Coefficients"):
     """
@@ -61,7 +31,7 @@ def plot_coefficients_1(model_df, title="GLMM Coefficients"):
     model_df = model_df.sort_values(by='Coef.', ascending=False)
 
     # Plot coefficients with error bars
-    ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=errors, fmt='o', color='blue', ecolor='black', capsize=5)
+    ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=errors, fmt='o', color='black', ecolor='black', capsize=5)
 
     # Add horizontal line at y=0 for reference
     ax.axhline(y=0, color='grey', linestyle='--')
@@ -72,105 +42,6 @@ def plot_coefficients_1(model_df, title="GLMM Coefficients"):
     ax.set_title(title)
 
     plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-
-
-
-def plot_likelihood_by_group(data, group_col, title, ylabel):
-    """
-    Plot the likelihood of X (pitch accents or boundary tones) by group.
-
-    Parameters:
-    data (pd.DataFrame): DataFrame containing fitted values and grouping variables.
-    group_col (str): Column name to group data by ('gender' or 'formality').
-    title (str): Title for the plot.
-    ylabel (str): Label for the y-axis.
-
-    Returns:
-    None: Displays a matplotlib bar plot.
-    """
-    group_likelihood = data.groupby(group_col)['fittedvalues'].mean()
-
-    plt.figure(figsize=(8, 6))
-    group_likelihood.plot(kind='bar', color=['skyblue', 'pink'])
-    plt.xlabel(group_col.capitalize())
-    plt.ylabel(ylabel)
-    plt.title(title)
-    plt.xticks(rotation=0)
-    plt.gca().yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0%}'))
-    plt.tight_layout()
-    plt.show()
-
-def plot_likelihood_by_interaction(data, interaction_vars, title, ylabel):
-    """
-    Plot the interaction effect between two variables on the likelihood of pitch accents or boundary tones.
-    interaction_vars: List containing two columns to plot interaction (e.g., ['bilingual', 'gender'])
-
-    Parameters:
-    data (pd.DataFrame): DataFrame containing interaction variables.
-    interaction_vars (list): List containing two columns to plot interaction (e.g., ['bilingual', 'gender']).
-    title (str): Title for the plot.
-    ylabel (str): Label for the y-axis.
-
-    Returns:
-    None: Displays a matplotlib bar plot showing interaction effects.
-    """
-    # Group data by interaction variables and calculate mean fitted values
-    interaction_data = data.groupby(interaction_vars)['fittedvalues'].mean().unstack()
-
-    # Create a bar plot for the interaction
-    fig, ax = plt.subplots(figsize=(8, 6))
-    interaction_data.plot(kind='bar', ax=ax)
-
-    # Add labels and title
-    ax.set_xlabel(interaction_vars[0].capitalize())
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-
-    # Format y-axis as percentage
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0%}'))
-    
-    plt.xticks(rotation=0)
-    plt.tight_layout()
-    plt.show()
-
-def plot_likelihood_by_group_1(data, group_col, title, ylabel):
-    """
-    Plot the likelihood of a high boundary tone by group with confidence intervals.
-
-    Parameters:
-    data (pd.DataFrame): DataFrame containing fitted values and grouping variables.
-    group_col (str): Column name to group data by ('gender' or 'formality').
-    title (str): Title for the plot.
-    ylabel (str): Label for the y-axis.
-
-    Returns:
-    None: Displays a matplotlib bar plot with error bars.
-    """
-    # Compute mean, standard deviation, and confidence intervals
-    group_stats = data.groupby(group_col)['fittedvalues'].agg(['mean', 'std', 'count'])
-
-    # Compute 95% confidence intervals
-    group_stats['ci'] = 1.96 * (group_stats['std'] / np.sqrt(group_stats['count']))
-
-    # Create bar plot with error bars
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.bar(group_stats.index, group_stats['mean'], yerr=group_stats['ci'], capsize=5, color=['skyblue', 'salmon'])
-
-    # Annotate bars with actual likelihood values
-    for i, value in enumerate(group_stats['mean']):
-        ax.text(i, value + 0.02, f"{value:.2f}", ha='center', fontsize=12)
-
-    # Labels and title
-    ax.set_xlabel(group_col.capitalize())
-    ax.set_ylabel(ylabel)
-    ax.set_title(title)
-
-    # Format y-axis as percentage
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0%}'))
-
-    plt.xticks(rotation=0)
     plt.tight_layout()
     plt.show()
 
@@ -211,7 +82,8 @@ def plot_mean_with_ci(data, group_col, title, ylabel):
     ax.set_title(title)
 
     # Format y-axis as percentage
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0%}'))
+    #ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.0%}'))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f'{y:.2f}'))
 
     plt.xticks(rotation=0)
     plt.tight_layout()
@@ -262,8 +134,6 @@ def plot_tukey_hsd(data, group_col, value_col, title="Multiple Comparisons Betwe
     plt.show()
 
 
-import pandas as pd
-from tabulate import tabulate
 
 def display_model_fit(glmm_model):
     """
@@ -293,8 +163,6 @@ def display_model_fit(glmm_model):
     print(tabulate(fit_df, headers="keys", tablefmt="pretty"))
 
 
-import pandas as pd
-from tabulate import tabulate
 
 def display_fixed_effects(glmm_model):
     """
@@ -325,3 +193,48 @@ def display_fixed_effects(glmm_model):
 
     print("\nFixed Effects Coefficients:")
     print(tabulate(fixed_effects_table, headers="keys", tablefmt="pretty"))
+
+def plot_glmm_ip_length(model_df):
+    """
+    Custom visualization for GLMM coefficients on IP Length.
+
+    Parameters:
+    model_df (pd.DataFrame): DataFrame containing GLMM model coefficients.
+        - Must include 'Variable', 'Coef.', '2.5_ci', '97.5_ci'.
+
+    Returns:
+    None: Displays a matplotlib plot.
+    """
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    # Remove intercept for better scaling
+    model_df = model_df[model_df['Variable'] != '(Intercept)'].copy()
+
+    # Ensure index is reset to avoid issues with array mismatch
+    model_df.reset_index(drop=True, inplace=True)
+
+    # Compute confidence interval range
+    lower_error = model_df['Coef.'] - model_df['2.5_ci']
+    upper_error = model_df['97.5_ci'] - model_df['Coef.']
+    errors = np.vstack([lower_error, upper_error])  # Correct shape (2, n)
+
+    # Sort by absolute magnitude of coefficients for better visibility
+    model_df = model_df.reindex(model_df['Coef.'].abs().sort_values(ascending=False).index)
+
+    # Plot with error bars
+    ax.errorbar(model_df['Variable'], model_df['Coef.'], yerr=errors, fmt='o', color='black', ecolor='black', capsize=5)
+
+    # Add horizontal reference line at y=0
+    ax.axhline(y=0, color='grey', linestyle='--')
+
+    # Adjust y-axis scale dynamically if needed
+    ax.set_ylim(model_df['Coef.'].min() - 0.1, model_df['Coef.'].max() + 0.1)
+
+    # Labels and title
+    ax.set_xlabel('Variable')
+    ax.set_ylabel('Coefficient')
+    ax.set_title("GLMM Coefficients for IP Length (Custom)")
+
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
