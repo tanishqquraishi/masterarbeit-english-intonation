@@ -6,7 +6,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning) # comment out to 
 
 from pymer4.models import Lmer
 from utils import load_data, rename_columns, convert_mixed_columns_to_string
-from visualizations import plot_mean_with_ci, plot_coefficients_1, plot_tukey_hsd , display_model_fit, display_fixed_effects  
+from visualizations import plot_mean_with_ci, plot_coefficients_1, plot_tukey_hsd , display_model_fit, display_fixed_effects, plot_glmm_ip_length 
 
 """
 Investigate the length of Intonational Phrases (IPs) by each speaker group (bilingual vs. monolingual) 
@@ -71,7 +71,7 @@ model_data = {
 # Visualize the model coefficients with confidence intervals
 model_df = pd.DataFrame(model_data)
 plot_coefficients_1(model_df, title="GLMM Coefficients for IP Length")
-
+#plot_glmm_ip_length(model_df)
 # Visualize the mean IP length by group with confidence intervals
 plot_mean_with_ci(data, 'bilingual', 'Mean IP Length by Speaker Group', 'Mean IP Length')
 plot_mean_with_ci(data, 'formality', 'Mean IP Length by Formality', 'Mean IP Length')
